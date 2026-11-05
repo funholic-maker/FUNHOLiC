@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"><meta name="theme-color" content="#111111"><title>FUNHOLiCいくで！ Ver.21</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"><meta name="theme-color" content="#111111"><title>FUNHOLiCいくで！｜ガラポン連携版</title>
 <style>
 :root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overscroll-behavior:none}body{background:#111;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;display:flex;justify-content:center;align-items:center;overflow:hidden}.shell{width:min(100vw,460px);height:100dvh;max-height:900px;position:relative;overflow:hidden;background:#f9e9c8;box-shadow:0 0 60px #0009}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{pointer-events:none;position:absolute;top:env(safe-area-inset-top,0px);left:0;right:0;display:flex;justify-content:space-between;gap:8px;padding:12px 14px;align-items:center}.stat{background:#171717;color:#fff;border:3px solid #171717;border-radius:13px;padding:7px 10px;min-width:90px;text-align:center;box-shadow:3px 4px 0 #e8473a}.stat small{display:block;color:#ffe29c;font-size:10px;letter-spacing:.08em;font-weight:900}.stat b{font-size:21px;line-height:1.2;font-variant-numeric:tabular-nums}.overlay{position:absolute;inset:0;background:#1119;display:flex;align-items:center;justify-content:center;padding:20px;z-index:5}.panel{width:100%;max-width:365px;background:#fff7e6;color:#161616;border:5px solid #161616;box-shadow:9px 10px 0 #e4473e;border-radius:19px;text-align:center;padding:20px 16px 22px}.eyebrow{font-weight:900;font-size:12px;color:#ce3c36;letter-spacing:.13em}.panel h1{font-size:clamp(25px,7vw,33px);line-height:1.2;margin:8px 0 10px;font-weight:1000;letter-spacing:-.05em}.lead{font-weight:800;line-height:1.5;font-size:14px;margin:7px 0}.legend{background:#f3dfbb;border:2px dashed #161616;border-radius:11px;margin:16px 0;padding:10px;font-size:13px;line-height:1.8;font-weight:750}.legend span{white-space:nowrap}.start{background:#e9413b;border:3px solid #161616;color:#fff;border-radius:99px;padding:13px 20px;min-height:53px;width:100%;font-size:20px;font-weight:950;box-shadow:0 5px 0 #161616;cursor:pointer}.start:active{transform:translateY(3px);box-shadow:0 2px 0 #161616}.hint{margin:12px 0 0;font-size:11px;font-weight:750;color:#454545}.toast{pointer-events:none;position:absolute;top:22%;left:12px;right:12px;text-align:center;font-weight:1000;font-size:27px;color:#d6322b;text-shadow:2px 3px 0 #fff, -2px -1px 0 #fff;opacity:0;transition:opacity .12s;z-index:2}.toast.show{opacity:1}.foot{pointer-events:none;position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 9px);left:0;right:0;text-align:center;font-size:11px;font-weight:900;color:#25252588}#slow{display:none;position:absolute;top:77px;left:50%;transform:translateX(-50%);background:#6a43bd;border:2px solid #171717;border-radius:30px;padding:5px 14px;font-weight:900;font-size:12px;pointer-events:none;white-space:nowrap}#slow.active{display:block}.music-toggle{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 36px);z-index:4;background:#161616;color:#fff;border:2px solid #f3d075;border-radius:30px;padding:9px 14px;font-weight:900;font-size:13px;cursor:pointer;box-shadow:2px 3px 0 #d53c35}.hidden{display:none}
 
@@ -77,9 +77,16 @@ const rand=(a,b)=>a+Math.random()*(b-a),clamp=(x,a,b)=>Math.max(a,Math.min(x,b))
 function resize(){const r=shell.getBoundingClientRect();W=r.width;H=r.height;dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);player.y=H-176;player.x=clamp(player.x,38,W-38)}
 addEventListener('resize',resize);resize();
 function unlockGacha(){
+ if(!active)return;
  active=false;finished=true;
  if(score>best){best=score;try{localStorage.setItem('ojisan-best',best)}catch(e){}bestEl.textContent=best;}
- refreshGoal(score);gachaOverlay.classList.remove('hidden');gachaMessage.textContent='最大コンボ '+maxCombo+'連続！ ガラガラを回してみよう！';
+ refreshGoal(score);
+ try{
+  const pass={score:score,maxCombo:maxCombo,created:Date.now(),id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)};
+  sessionStorage.removeItem('funholic_garapon_result');
+  sessionStorage.setItem('funholic_garapon_pass',JSON.stringify(pass));
+ }catch(e){}
+ window.location.assign('./garapon.html');
 }
 spinGacha.addEventListener('click',()=>{
  if(gachaSpinTimer!==null||gachaOverlay.classList.contains('hidden'))return;
